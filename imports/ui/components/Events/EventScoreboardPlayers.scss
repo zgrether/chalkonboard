@@ -1,0 +1,39 @@
+.table-nonfluid {
+  width: auto !important;
+  margin: 50px auto;
+  float: none;
+}
+
+th.rotate {
+  /* Something you can count on */
+  height: auto;
+  white-space: nowrap;
+}
+
+th.rotate > div {
+  transform: 
+    /* Magic Numbers */
+    translate(0px, -7px)
+    /* 45 is really 360 - 45 */
+    rotate(315deg);
+  width: 40px;
+}
+
+th.rotate > div > span {
+  // border-bottom: 1px solid #ccc;
+  padding: 5px 10px;
+}
+
+.totalscore {
+  vertical-align: middle;
+  text-align: center;
+}
+
+tfoot {
+  font-weight: bold;
+}
+
+.gameName {
+  width: 150px;
+  vertical-align: middle;
+}
