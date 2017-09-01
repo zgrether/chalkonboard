@@ -1,8 +1,6 @@
 {
   "public": {},
   "private": {
-    "MAIL_URL": "",
-    "OAuth": {
-    }
+    "MAIL_URL": ""
   }
 }
