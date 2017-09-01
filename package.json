@@ -2,7 +2,7 @@
   "name": "eventmaster",
   "private": true,
   "scripts": {
-    "start": "meteor --settings settings-development.json",
+    "start": "meteor --settings settings-production.json",
     "test": "jest"
   },
   "dependencies": {
