@@ -17,14 +17,14 @@ const handleClickGame = (history, gameId, editing) => {
   }
 }
 
-const EventScoreboardTeams = ({ event, loading, teams, games, history, editing }) => ( 
-  !loading ? (
+const EventScoreboardTeams = ({ event,  teams, games, history, editing }) => ( 
+ 
     <Table condensed striped hover className="table-nonfluid">
       <thead>
         <tr>
           <th>Game</th>
-          {teams.map(({ _id, name }) => (
-            <th className="rotate" key={_id}><div><span>{name}</span></div></th>
+          {teams.map(({ _id, name, abbrv }) => (
+            <th className="rotate" key={_id}><div><span>{abbrv}</span></div></th>
           ))}
         </tr>
       </thead>
@@ -42,23 +42,18 @@ const EventScoreboardTeams = ({ event, loading, teams, games, history, editing }
         <tr>
           <td>TOTALS:</td>
           {teams.map((team) => (
-            team.total ? (
-              <td className="totalscore" key={team._id}>{team.total}</td>
-            ) : (
-              <td className="totalscore" key={team._id}>-</td>
-            )
+            <td className="totalscore" key={team._id}>{team.events[0].total}</td>
           ))}
         </tr>
       </tfoot>
     </Table> 
-    ) : (
-    <Loading />
-  )
+
+  
 );
 
 EventScoreboardTeams.propTypes = {
   event: PropTypes.object.isRequired,
-  loading: PropTypes.bool.isRequired,
+  //loading: PropTypes.bool.isRequired,
   teams: PropTypes.arrayOf(PropTypes.object).isRequired,
   games: PropTypes.arrayOf(PropTypes.object).isRequired,
   history: PropTypes.object.isRequired,
@@ -66,13 +61,13 @@ EventScoreboardTeams.propTypes = {
 };
 
 export default createContainer(({ history, event, editing }) => {
-  const teamSubscription = Meteor.subscribe('teams.event', event._id);
-  const gameSubscription = Meteor.subscribe('games.event', event._id);
+  const subscription = Meteor.subscribe('teams.event', event._id);
+  //const gameSubscription = Meteor.subscribe('games.event', event._id);
   return {
     event: event,
-    loading: !(teamSubscription.ready() && gameSubscription.ready()),
-    teams: TeamsCollection.find().fetch(),
-    games: GamesCollection.find({ eventId: event._id }, { sort: { order: 1 }}).fetch(),
+    loading: !subscription.ready(),
+    teams: TeamsCollection.find({'events.eventId': event._id}).fetch(),
+    //games: GamesCollection.find({ eventId: event._id }, { sort: { order: 1 }}).fetch(),
     editing: editing,
   }
 }, EventScoreboardTeams);

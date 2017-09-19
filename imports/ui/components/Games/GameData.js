@@ -23,17 +23,21 @@ export default createContainer(({ game, player, team }) => {
   let scoreId;
 
   if (game.bteam) {
-    team.games.map((teamGame) => {
-      if (teamGame.gameId === game._id) {
-        scoreId = teamGame.scoreId;
-      }
-    });  
+    if (team.games) {
+      team.games.map((teamGame) => {
+        if (teamGame.gameId === game._id) {
+          scoreId = teamGame.scoreId;
+        }
+      }); 
+    } 
   } else {
-    player.games.map((playerGame) => {
-      if (playerGame.gameId === game._id) {
-        scoreId = playerGame.scoreId;
-      }
-    });
+    if (player.games) {
+      player.games.map((playerGame) => {
+        if (playerGame.gameId === game._id) {
+          scoreId = playerGame.scoreId;
+        }
+      });
+    }
   }
 
   if (scoreId) {

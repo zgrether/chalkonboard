@@ -14,14 +14,10 @@ const handleRemove = (playerId, eventId) => {
     if (error) {
       Bert.alert(error.reason, 'danger');
     } else {
-      Bert.alert('Player deleted!', 'success');
+      Bert.alert('Player removed!', 'success');
     }
   });
 };
-
-const mediumStyle = { verticalAlign: 'middle', textAlign: 'center', width: 400 };
-const nameStyle = { verticalAlign: 'middle', textAlign: 'left', width: 200 };
-const narrowStyle = { verticalAlign: 'middle', textAlign: 'center', width: 10 };   
 
 const EventEditorPlayers = ({ bteam, event, loading, players }) => (!loading ? (
   event ? (
@@ -34,26 +30,26 @@ const EventEditorPlayers = ({ bteam, event, loading, players }) => (!loading ? (
         <Table condensed striped>
           <thead>
             <tr>
-              <th style={ nameStyle }>Name</th>
-              <th style={ mediumStyle }>Email</th>
-              { bteam &&
-              <th style={ mediumStyle }>Team</th>
-              }         
-              <th style={ narrowStyle }></th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Team</th> 
+              <th></th>
             </tr>
           </thead>
           <tbody>
-            {players.map(({ _id, name, email, teamName }) => (
-              <tr key={_id}>
-                <td style={ nameStyle }>{name}</td>
-                <td style={ mediumStyle }>{email}</td>
-                { bteam &&
-                <td style={ mediumStyle }>{teamName}</td>
-                }
-                <td style={ narrowStyle }>
+            {players.map((player) => (
+              <tr key={player._id}>
+                <td>{player.name}</td>
+                <td>{player.email}</td>
+                { player.events[0].teamName ? (
+                  <td>{player.events[0].teamName}</td>
+                ) : (
+                  <td></td>
+                )}
+                <td>
                   <Button
                     bsStyle="link"
-                    onClick={() => handleRemove(_id, event._id)}
+                    onClick={() => handleRemove(player._id, event._id)}
                     block
                   >Remove</Button>
                 </td>
@@ -72,16 +68,15 @@ EventEditorPlayers.propTypes = {
   bteam: PropTypes.bool,
   event: PropTypes.object.isRequired,
   loading: PropTypes.bool.isRequired,
-  players: PropTypes.arrayOf(PropTypes.object).isRequired,
-};
+  players: PropTypes.arrayOf(PropTypes.object).isRequired};
 
 export default createContainer(({ event }) => {
-  const subscription = Meteor.subscribe('players');
-  
+  const subscription = Meteor.subscribe('players.event', event._id);
+
   return{
     bteam: event.bteam,
     event: event,
     loading: !subscription.ready(),
-    players: PlayersCollection.find({events: { $in: [event._id]}}).fetch(),
+    players: PlayersCollection.find({ 'events.eventId': event._id }).fetch(),
   };
 }, EventEditorPlayers);

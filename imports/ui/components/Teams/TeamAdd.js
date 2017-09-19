@@ -2,31 +2,30 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FormGroup, InputGroup, FormControl, Button, Row, Col } from 'react-bootstrap';
+import { Row, Col, FormGroup, ControlLabel, Button } from 'react-bootstrap';
 import { Meteor } from 'meteor/meteor';
 import { Bert } from 'meteor/themeteorchef:bert';
 import validate from '../../../modules/validate';
-import Loading from '../Loading/Loading';
 
 class TeamAdd extends React.Component {
   componentDidMount() {
     const component = this;
-    validate(component.form, {
+    validate(component.teamForm, {
       rules: {
-        name: {
+        teamName: {
           required: true,
         },
-        eventId: {
+        teamAbbrv: {
           required: true,
         },
       },
       messages: {
-        name: {
+        teamName: {
           required: 'Need a name for your team.',
         },
-        eventId: {
-          required: 'Need an event ID.',
-        },
+        teamAbbrv: {
+          required: 'Need an abbreviation for your team.',
+        }
       },
       submitHandler() {
         component.handleSubmit();
@@ -35,50 +34,57 @@ class TeamAdd extends React.Component {
   }
 
   handleSubmit() {
-    const { eventId } = this.props;
+    
     const team = {
-      name: this.inputName.value.trim(),
-      eventId: eventId,
+      name: this.teamName.value,
+      abbrv: this.teamAbbrv.value,
     };
-
+    
     Meteor.call('teams.insert', team, (error, teamId) => {
       if (error) {
         Bert.alert(error.reason, 'danger');
       } else {
-        this.form.reset();
+        this.teamForm.reset();
         Bert.alert('Team created!', 'success');
       }
     });
   }
 
   render() {
-    const { eventId } = this.props;
+
     return (
-      <div>
-        {eventId ? (
-        <form ref={form => (this.form = form) } onSubmit={e => e.preventDefault()}>
-          <Row>
-            <Col xs={ 7 } md={ 7 }>
-              <InputGroup>
-                <FormControl type="text" name="name" placeholder="Team Name" inputRef={(input => this.inputName = input)}/>
-                <InputGroup.Button>
-                  <Button type="submit" bsStyle="success" className="pull-right">Add Team</Button>
-                </InputGroup.Button>
-              </InputGroup>
-            </Col>
-          </Row>
-        </form>) : <Loading /> }
-      </div>
+      <form ref={teamForm => (this.teamForm = teamForm) } onSubmit={e => e.preventDefault()}>
+        <Row>
+          <Col xs={ 5 } md={ 5 }>
+            <FormGroup>
+              <ControlLabel>Team Name</ControlLabel>
+              <input
+                type="text"
+                name="teamName"
+                ref={ teamName => (this.teamName = teamName )}
+                className="form-control"
+              />
+            </FormGroup>
+          </Col>
+
+          <Col xs={ 5 } md={ 5 }>
+            <FormGroup>
+              <ControlLabel>Team Abbreviation</ControlLabel>
+              <input
+                type="text"
+                name="teamAbbrv"
+                ref={ teamAbbrv => (this.teamAbbrv = teamAbbrv )}
+                className="form-control"
+              />
+            </FormGroup>
+          </Col>
+          <Col xs={ 2 } md={ 2 }>
+            <Button style={{"marginTop":"25px"}} type="submit" bsStyle="success">Add</Button>
+          </Col>
+        </Row>
+      </form>
     )
   }
 }
-
-TeamAdd.defaultProps = {
-  team: { name: '', eventId: '' },
-};
-
-TeamAdd.propTypes = {
-  eventId: PropTypes.string,
-};
 
 export default TeamAdd;

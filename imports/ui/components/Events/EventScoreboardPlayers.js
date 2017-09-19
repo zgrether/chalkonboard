@@ -44,11 +44,7 @@ const EventScoreboardPlayers = ({ event, loading, players, games, history, editi
         <tr>
           <td>TOTALS:</td>
           {players.map((player) => (
-            player.total ? (
-              <td className="totalscore" key={player._id}>{player.total}</td>
-            ) : (
-              <td className="totalscore" key={player._id}>-</td>
-            )
+            <td className="totalscore" key={player._id}>{player.events[0].total}</td>
           ))}
         </tr>
       </tfoot>
@@ -60,21 +56,21 @@ const EventScoreboardPlayers = ({ event, loading, players, games, history, editi
 
 EventScoreboardPlayers.propTypes = {
   event: PropTypes.object.isRequired,
-  loading: PropTypes.bool.isRequired,
+  //loading: PropTypes.bool.isRequired,
   players: PropTypes.arrayOf(PropTypes.object).isRequired,
-  games: PropTypes.arrayOf(PropTypes.object).isRequired,
+ // games: PropTypes.arrayOf(PropTypes.object).isRequired,
   history: PropTypes.object.isRequired,
   editing: PropTypes.bool,
 };
 
 export default createContainer(({ history, event, editing }) => {
-  const playerSubscription = Meteor.subscribe('players.event', event._id);
-  const gameSubscription = Meteor.subscribe('games.event', event._id);
+  const subscription = Meteor.subscribe('players.event', event._id);
+  //const gameSubscription = Meteor.subscribe('games.event', event._id);
   return {
     event: event,
-    loading: !(playerSubscription.ready() && gameSubscription.ready()),
-    players: PlayersCollection.find({ events: {$in: [event._id] } }).fetch(),
-    games: GamesCollection.find({ eventId: event._id }, { sort: { order: 1 }}).fetch(),
+    loading: !subscription.ready(),
+    players: PlayersCollection.find({'events.eventId': event._id}).fetch(),
+    //games: GamesCollection.find({ eventId: event._id }, { sort: { order: 1 }}).fetch(),
     editing: editing,
   }
 }, EventScoreboardPlayers); 

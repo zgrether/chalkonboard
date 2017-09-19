@@ -15,13 +15,14 @@ class ViewEvent extends React.Component {
     const { loading, event, history } = this.props;
 
     return (
-      !loading && event ? (
+      !loading && (
         <div className="ViewEvent">
           <EventHeader event={event} history={history} />
-          <EventScoreboard event={event} history={history} />
+
+          <EventScoreboard event={event} history={history} editing={false}/>
         </div>
-      ) : ( 
-        <Alert bsStyle="warning">This event is not available</Alert>          
+      // ) : ( 
+      //   <Alert bsStyle="warning">This event is not available</Alert>          
       )
     );
   }

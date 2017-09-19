@@ -9,6 +9,7 @@ import Navigation from '../../components/Navigation/Navigation';
 import Authenticated from '../../components/Authenticated/Authenticated';
 import Public from '../../components/Public/Public';
 import Index from '../../pages/Index/Index';
+import Dashboard from '../../pages/Dashboard/Dashboard';
 import Events from '../../pages/Events/Events';
 import ViewEvent from '../../pages/Events/ViewEvent';
 import EditEvent from '../../pages/Events/EditEvent';
@@ -19,6 +20,9 @@ import EditGame from '../../pages/Games/EditGame';
 import Scores from '../../pages/Scores/Scores';
 import Players from '../../pages/Players/Players';
 import ViewPlayer from '../../pages/Players/ViewPlayer';
+import ViewTeam from '../../pages/Teams/ViewTeam';
+import Rosters from '../../pages/Rosters/Rosters';
+import ViewRoster from '../../pages/Rosters/ViewRoster';
 import Venues from '../../pages/Venues/Venues';
 import ViewVenue from '../../pages/Venues/ViewVenue';
 import Signup from '../../pages/Signup/Signup';
@@ -39,11 +43,14 @@ const App = props => (
       <Grid>
         <Switch>
           <Route exact name="index" path="/" component={Index} />
-          <Authenticated exact path="/events" component={Events} {...props} />
+          {/* <Authenticated exact path="/events" component={Events} {...props} /> */}
           <Authenticated exact path="/events/:_id" component={ViewEvent} {...props} />
           <Authenticated exact path="/events/:_id/edit" component={EditEvent} {...props} />
-          <Authenticated exact path="/players" component={Players} {...props} />
+          {/* <Authenticated exact path="/players" component={Players} {...props} /> */}
           <Authenticated exact path="/players/:_id" component={ViewPlayer} {...props} />
+          <Authenticated exact path="/teams/:_id" component={ViewTeam} {...props} />
+          {/* <Authenticated exact path="/rosters" component={Rosters} {...props} />
+          <Authenticated exact path="/rosters/:_id" component={ViewRoster} {...props} /> */}
           <Authenticated exact path="/venues" component={Venues} {...props} />
           <Authenticated exact path="/venues/:_id" component={ViewVenue} {...props} />
           <Authenticated exact path="/games" component={Games} {...props} />
@@ -52,6 +59,7 @@ const App = props => (
           <Authenticated exact path="/scores/:shareId" component={ScoreEvent} {...props} />
           <Authenticated exact path="/profile" component={Profile} {...props} />
           <Authenticated exact path="/scores" component={Scores} {...props} />
+          <Authenticated exact path="/dashboard" component={Dashboard} {...props} /> 
           <Public path="/signup" component={Signup} {...props} />
           <Public path="/login" component={Login} {...props} />
           <Public path="/logout" component={Logout} {...props} />

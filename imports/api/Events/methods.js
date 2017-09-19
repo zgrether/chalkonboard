@@ -69,7 +69,11 @@ Meteor.methods({
       });
 
       players.forEach((player) => {
-        Players.remove(player._id);
+        Meteor.call('players.quitEvent', player._id, eventId, (error) => {
+          if (error) {
+            console.log(error);
+          }
+        });
       });
 
       teams.forEach((team) => {

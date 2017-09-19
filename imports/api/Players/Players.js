@@ -36,30 +36,40 @@ Players.schema = new SimpleSchema({
     label: 'The list of events the player is taking part in.',
     required: false,
   },
-  'events.$': String,
-  teamId: {
-    type: String,
-    label: 'The ID of the team this player is on.',
-    required: false,
-  },
-  teamName: {
-    type: String,
-    label: 'The name of the team this player is on.',
-    required: false,
-  },
+  'events.$': Object,
+  'events.$.eventId': String,
+  'events.$.teamId': { type: String, required: false },
+  'events.$.teamName': { type: String, required: false },
+  'events.$.total': Number,
+  // teamId: {
+  //   type: String,
+  //   label: 'The ID of the team this player is on.',
+  //   required: false,
+  // },
+  // teamName: {
+  //   type: String,
+  //   label: 'The name of the team this player is on.',
+  //   required: false,
+  // },
+  // teams: {
+  //   type: Array,
+  //   label: 'Array of teams this player is on.',
+  //   required: false,
+  // },
+  // 'teams.$': String,
   games: {
     type: Array,
     label: 'Array of games this player is taking part in.',
     required: false,
   },
-  total: {
-    type: Number,
-    label: 'The total score of player',
-    required: false,
-  },
   'games.$': Object,
   'games.$.gameId': String,
   'games.$.scoreId': String,
+  // total: {
+  //   type: Number,
+  //   label: 'The total score of player',
+  //   required: false,
+  // },
 });
 
 Players.attachSchema(Players.schema);

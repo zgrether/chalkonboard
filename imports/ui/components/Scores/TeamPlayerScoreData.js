@@ -30,7 +30,7 @@ class TeamPlayerScoreData extends React.Component {
           </thead>
           <tbody>
             {players.map((player) => (
-              <PlayerScoreData key={player._id} game={game} player={player} editing={editing} />
+              <PlayerScoreData key={player._id} game={game} player={player} team={team} editing={editing} />
             ))}              
           </tbody>
           <tfoot>
@@ -54,13 +54,13 @@ TeamPlayerScoreData.propTypes = {
 };
 
 export default createContainer(({ game, team, editing}) => {
-  const playerSubscription = Meteor.subscribe('players.team', team._id);
- 
+  const subscription = Meteor.subscribe('players.event', game.eventId);
+
   return {
     game: game,
-    loading: !(playerSubscription.ready()),
+    loading: !(subscription.ready()),
     team: team,
-    players: PlayersCollection.find({ teamId: team._id }).fetch(),
+    players: PlayersCollection.find({ 'events.teamId': team._id }).fetch(),
     editing: editing,
   }
 }, TeamPlayerScoreData);

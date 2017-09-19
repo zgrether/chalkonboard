@@ -3,6 +3,7 @@ import { check } from 'meteor/check';
 import Players from './Players';
 import Scores from '../Scores/Scores';
 import Games from '../Games/Games';
+import Teams from '../Teams/Teams';
 import rateLimit from '../../modules/rate-limit';
 
 Meteor.methods({
@@ -12,16 +13,22 @@ Meteor.methods({
       email: String,
     });
     
-    player.teamId = "";
-    player.teamName = "";
     player.events = [];
     player.games = [];
-    player.total = 0;
+    player.teams = [];
 
     try {
       return Players.insert({ owner: this.userId, ...player });
     } catch (exception) {
-      console.log(exception);
+      throw new Meteor.Error('500', exception);
+    }
+  },
+  'players.remove': function playersRemove(playerId) {
+    check(playerId, String);
+
+    try {
+      return Players.remove(playerId);
+    } catch (exception) {
       throw new Meteor.Error('500', exception);
     }
   },
@@ -30,10 +37,8 @@ Meteor.methods({
       _id: String,
       name: String,
       eventId: String,
-      teamId: String,
-      teamName: String,
+      teams: Array,
       games: Array,
-      total: Number,
     });
 
     try {
@@ -59,77 +64,112 @@ Meteor.methods({
       throw new Meteor.Error('500', exception);
     }
   },
-  'players.updateteam': function playersUpdateTeam(player) {
-    check(player, {
-      _id: String,
-      teamId: String,
-      teamName: String,
-    });
-
+  'players.joinTeam': function playersUpdateTeam(playerId, teamId, teamName, eventId) {
     try {
-      const playerId = player._id;
-      Players.update(playerId, { $set: player });
-      return playerId;
-    } catch (exception) {
-      throw new Meteor.Error('500', exception);
-    }
-  },
-  'players.remove': function playersRemove(playerId) {
-    check(playerId, String);
-
-    try {
-      return Players.remove(playerId);
-    } catch (exception) {
-      throw new Meteor.Error('500', exception);
-    }
-  },
-  'players.addEvent': function playersAddEvent(player) {
-    const playerId = player._id;
-    const eventId = player.eventId;
-    
-    const exists = Players.findOne({ "_id": playerId, "events": eventId });
-    if (!exists) {
-      try {
-
-        const id = Players.update(playerId, {
-          $addToSet: {
-            events: eventId,
-          }
-        });
-        
-        const games = Games.find({ eventId: eventId });
-        games.forEach((game) => {
-          const playerScore = {
-            raw: 0,
-            final: 0,
-            playerId: playerId,
-            gameId: game._id,
-            eventId: eventId,
+      const updatePlayerId = Players.update({ 
+        _id: playerId, 
+        "events.eventId": eventId
+      }, {
+        $set: {
+          "events.$.teamId": teamId,
+          "events.$.teamName": teamName
+        }
+      });
+  
+      if (teamId) {
+        const scores = Scores.find({ eventId: eventId, playerId: playerId});
+        scores.forEach(function(score) {
+          const updateScore = {
+            _id: score._id,
+            playerTeamId: teamId,
           };
 
-          Meteor.call('scores.insertplayer', playerScore, (error, scoreId) => {
+          Meteor.call('scores.updateTeam', updateScore, (error) => {
             if (error) {
               console.log(error);
             }
           });
         });
+      }
+      return updatePlayerId;
+    } catch (exception) {
+      throw new Meteor.Error('500', exception);
+    }
+  },
+  'players.removeTeam': function playersRemoveTeam(playerId, teamId) {
+    try {
+      const player = Players.update({_id: playerId, "events.teamId": teamId}, {
+        $set: {
+          "events.$.teamId": "",
+          "events.$.teamName": "",
+        }
+      });
+      
+    } catch (exception) {
+      throw new Meteor.Error('500', exception);
+    }
+  },
+  'players.addEvent': function playersAddEvent(playerId, eventId) {
+    try {
+      const updateEvent = {
+        eventId: eventId,
+        total: 0,
+        teamId: "",
+      }
 
-        return id;
-      }
-      catch (exception) {
-        throw new Meteor.Error('500', exception);
-      }
+      const id = Players.update(playerId, {
+        $addToSet: {
+          events: updateEvent,
+        }
+      });
+      
+      // initialize scores for every game for this player
+      const games = Games.find({ eventId: eventId });
+      games.forEach((game) => {
+        const playerScore = {
+          raw: 0,
+          final: 0,
+          playerId: playerId,
+          gameId: game._id,
+          eventId: eventId,
+        };
+
+        Meteor.call('scores.insertplayer', playerScore, (error, scoreId) => {
+          if (error) {
+            console.log(error);
+          }
+        });
+      });
+
+      return id;
+    }
+    catch (exception) {
+      throw new Meteor.Error('500', exception);
     }
   },
   'players.quitEvent': function playersQuitEvent(playerId, eventId) {
     try {
       const event = Players.update(playerId, {
         $pull: {
-          events: 
-            eventId,   
+          events: {
+            eventId: eventId
+          } 
         }
       });
 
+      // remove scores for every game, of this event, for this player
+      const games = Players.findOne(playerId).games;
+      games.forEach((game) => {
+        if (Games.findOne(game.gameId).eventId == eventId) {
+          Meteor.call('players.quitGame', game.scoreId, playerId, "", game.gameId, (error) => {
+            if (error) {
+              console.log(error);
+            }
+          });
+        }
+      });
+
+      return eventId;
     } catch (exception) {
       throw new Meteor.Error('500', exception);
     }
@@ -151,7 +191,7 @@ Meteor.methods({
       throw new Meteor.Error('500', exception);
     }
   },
-  'players.quitGame': function playersQuitGame(scoreId, playerId, playerTeamId, gameId) {
+  'players.quitGame': function playersQuitGame(scoreId, playerId, team, gameId) {
     try {
       const player = Players.update(playerId, {
         $pull: {
@@ -160,15 +200,31 @@ Meteor.methods({
           }
         }
       });
-      Meteor.call('scores.remove', scoreId, playerTeamId, gameId, (error) => {
-        if (error) {
-          console.log(error);
-        }
-      });
+
+      if (scoreId) {
+        Meteor.call('scores.remove', scoreId, team, gameId, (error) => {
+          if (error) {
+            console.log(error);
+          }
+        });
+      }
     } catch (exception) {
       throw new Meteor.Error('500', exception);
     }
    },
+   'players.updateTotal': function playersUpdateTotal(playerId, eventId, total) {
+    try {
+      const player = Players.update({ _id: playerId, "events.eventId": eventId }, {
+        $set: {
+          "events.$.total": total,
+        }
+      });
+
+    } catch (exception) {
+      throw new Meteor.Error('500', exception);
+    }
+   },
+   
  });
 
 rateLimit({

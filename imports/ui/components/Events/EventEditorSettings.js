@@ -43,23 +43,44 @@ class EventEditorSettings extends React.Component {
       location: document.querySelector(`[name="location"]`).value,
       info: document.querySelector(`[name="info"]`).value,
       bteam: document.querySelector(`[name="bteam"]`).checked,
-      private: document.querySelector(`[name="private"]`).checked,
+      private: false, //document.querySelector(`[name="private"]`).checked,
       shareId: document.querySelector(`[name="shareid"]`).value,
     };
 
-    Meteor.call('events.update', updateEvent, (error) => {
-      if (error) {
-        Bert.alert(error.reason, 'danger');
+    if (!updateEvent.bteam && event.bteam) {
+      if (confirm('This will remove all teams and team assignments? Are you sure?')) {
+        Meteor.call('events.update', updateEvent, (error) => {
+          if (error) {
+            Bert.alert(error.reason, 'danger');
+          } else {
+            Bert.alert('Event updated!', 'success');
+          }
+        });
+        
+        Meteor.call('teams.allQuitEvent', eventId, (error) => {
+          if (error) {
+            Bert.alert(error.reason, 'danger');
+          } else {
+            Bert.alert('Teams removed!', 'success');
+          }
+        });
       } else {
-        Bert.alert('Event updated!', 'success');
+        document.querySelector(`[name="bteam"]`).checked = true;
       }
-    });
+    } else {
+      Meteor.call('events.update', updateEvent, (error) => {
+        if (error) {
+          Bert.alert(error.reason, 'danger');
+        } else {
+          Bert.alert('Event updated!', 'success');
+        }
+      });  
+    }
   }
 
   render() {
 
     const { event } = this.props;
-    const wellStyles = {maxWidth: 200, margin: '0 auto 10px'};
 
     return (
 
@@ -89,13 +110,13 @@ class EventEditorSettings extends React.Component {
                 <Checkbox name="bteam" defaultChecked={event.bteam} onChange={ this.handleSubmit.bind(this) }>Team-Based Scoring</Checkbox>
               </FormGroup>
     
-              <FormGroup>
+              {/* <FormGroup>
                 <ControlLabel>Private</ControlLabel>
                 <Checkbox name="private" defaultChecked={event.private} onChange={ this.handleSubmit.bind(this) }>Only Logged-In Players Can View</Checkbox>
-              </FormGroup>
+              </FormGroup> */}
 
               <FormGroup>
-                <ControlLabel>Easy Share ID (alternative URL to: http://www.eventmaster.com/{event._id})</ControlLabel>
+                <ControlLabel>Easy Share ID (alternative URL to: http://chalkonboard.herokuapp.com/events/{event._id})</ControlLabel>
                 <FormControl type="text" name="shareid" placeholder="Share ID" defaultValue={event.shareId}/>
               </FormGroup>
 

@@ -11,7 +11,6 @@ import EventEditorGames from './EventEditorGames.js';
 import Loading from '../Loading/Loading';
 import { createContainer } from 'meteor/react-meteor-data';
 import EventHeader from './EventHeader';
-import EventScoreboard from './EventScoreboard';
 
 import './EventEditor.scss';
 
@@ -30,8 +29,6 @@ class EventEditor extends React.Component {
       <div className="EventEditor">
 
         <EventHeader event={event} history={history} editing={editing} />
-
-        <EventScoreboard event={event} history={history} editing={editing}/>
 
         <Tab.Container id="left-tabs-example" defaultActiveKey="first">
           <Row className="clearfix">
@@ -65,7 +62,7 @@ class EventEditor extends React.Component {
                   </Tab.Pane>
                 )}
                 <Tab.Pane eventKey="fourth">
-                  <EventEditorGames event={ event } />
+                  <EventEditorGames event={ event } history={ history } />
                 </Tab.Pane>
               </Tab.Content>
           </Row>

@@ -34,7 +34,7 @@ Meteor.publish('scores.gamePlayerOrderPositive', function scoresPlayerGameOrderP
   check(gameId, String);
   return Scores.find({ 
       gameId: gameId,
-      teamId: {$exists: false },
+      playerId: {$exists: true },
     }, 
     {
       sort: { raw: -1 }
@@ -46,7 +46,7 @@ Meteor.publish('scores.gameTeamOrderPositive', function scoresTeamGameOrderPosit
   check(gameId, String);
   return Scores.find({ 
       gameId: gameId,
-      playerId: {$exists: false },
+      teamId: {$exists: true },
     }, 
     {
       sort: { raw: -1 }
@@ -62,7 +62,7 @@ Meteor.publish('scores.event', function scoresEvent(eventId) {
 Meteor.publish('scores.playergame', function scoresPlayerGame(playerId, gameId) {
   check(playerId, String);
   check(gameId, String);
-  return Scores.find({ playerId: playerId, gameId: gameId, teamId: "" });
+  return Scores.find({ playerId: playerId, gameId: gameId });
 });
 
 Meteor.publish('scores.teamgame', function scoresTeamGame(teamId, gameId) {

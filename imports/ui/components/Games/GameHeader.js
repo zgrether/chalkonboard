@@ -9,7 +9,8 @@ import GameFinalize from '../../components/Games/GameFinalize';
 import EventsCollection from '../../../api/Events/Events';
 
 const returnToScoreboard = (history, game) => {
-  history.push(`/events/${game.eventId}`);
+  history.goBack();
+//  history.push(`/events/${game.eventId}`);
 }
 
 const canEdit = ({ event }) => {
@@ -56,17 +57,19 @@ class GameHeader extends React.Component {
             )}
             &nbsp;&nbsp;{ game.title } <small>{ event.location }</small>
             {editing ? (
-                // when editing the event
-              <Button className="pull-right" bsStyle="primary" onClick={ () => returnToScoreboard(history, game) }>Scoreboard</Button>
+              <ButtonGroup className="pull-right">
+                <Button onClick={ () => returnToScoreboard(history, game) }>Scoreboard</Button>
+                <Button onClick={ () => this.setState({ showModalRules: true, game: game, name: game.title }) }>Rules</Button>
+              </ButtonGroup>
             ) : (
               <ButtonGroup className="pull-right">
-                <Button bsStyle="warning" onClick={ () => this.setState({ showModal: true, game: game, name: game.title }) }>End Game</Button>
-                <Button bsStyle="primary" onClick={ () => returnToScoreboard(history, game) }>Scoreboard</Button>
+                <Button onClick={ () => this.setState({ showModal: true, game: game, name: game.title }) }>End Game</Button>
+                <Button onClick={ () => returnToScoreboard(history, game) }>Scoreboard</Button>
+                <Button onClick={ () => this.setState({ showModalRules: true, game: game, name: game.title }) }>Rules</Button>
               </ButtonGroup>      
             )}
           </PageHeader>
           
-          <Button bsStyle="link" className="pull-right" onClick={ () => this.setState({ showModalRules: true, game: game, name: game.title }) }>Rules</Button>
           
 
           <Modal show={ this.state.showModal } onHide={ () => this.setState({ showModal: false }) }>

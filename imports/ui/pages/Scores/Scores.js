@@ -31,7 +31,7 @@ const Scores = ({ loading, scores, match, history }) => (!loading ? (
           <th>Event ID</th>
           <th>Game ID</th>
           <th>Player ID</th>
-          <th>Team ID</th>
+          <th>Team IDA</th>
           <th>Raw</th>
           <th>Final</th>
           <th />

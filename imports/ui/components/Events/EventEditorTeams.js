@@ -7,8 +7,20 @@ import { createContainer } from 'meteor/react-meteor-data';
 import TeamsCollection from '../../../api/Teams/Teams';
 import Loading from '../../components/Loading/Loading';
 import TeamAdd from '../Teams/TeamAdd';
-import TeamSettings from '../Teams/TeamSettings';
+import TeamEditor from '../Teams/TeamEditor';
 import RosterEditor from '../Teams/RosterEditor';
+import TeamSelectEvent from '../Teams/TeamSelectEvent';
+
+const handleRemove = (teamId, eventId) => {
+
+  Meteor.call('teams.quitEvent', teamId, eventId, (error) => {
+    if (error) {
+      Bert.alert(error.reason, 'danger');
+    } else {
+      Bert.alert('Team removed!', 'success');
+    }
+  });
+};
 
 class EventEditorTeams extends React.Component {
   constructor(props) {
@@ -19,75 +31,62 @@ class EventEditorTeams extends React.Component {
       showModal: false,
     };
   }
-
-  handleRemoveTeam(e) {
-    e.preventDefault();
-
-    const teamId = this.state.team._id;
-
-    Meteor.call('teams.remove', teamId, (error) => {
-      if (error) {
-        Bert.alert(error.reason, 'danger');
-      } else {
-        Bert.alert('Team deleted!', 'success');
-      }
-    });
-
-    this.setState({
-      team: undefined,
-      showModal: false
-    });
-  }
   
   render() {
-    const nameStyle = { verticalAlign: 'middle', textAlign: 'left', width: 200 };
-    const narrowStyle = { verticalAlign: 'middle', textAlign: 'center', width: 50 };   
-    const { eventId, loading, teams } = this.props;
+    const { event, loading, teams } = this.props;
 
     return (
       !loading ? (
         <div className="EventEditorTeams">
-          <PageHeader>
-            <TeamAdd eventId={eventId} />
-          </PageHeader>
+          
+          <br />
+
+          <TeamSelectEvent eventId={event._id} />
 
           {teams.length ? 
           <Table condensed striped>
             <thead>
               <tr>
-                <th style={ nameStyle }>Name</th>
-                <th style={ narrowStyle }></th>
+                <th>Name</th>
+                <th>Abbreviation</th>
+                <th>Rosters</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
               {teams.map((team) => (
                 <tr key={team._id}>
-                  <td style={ nameStyle }>{team.name}</td>
-                  <td style={ narrowStyle }>
+                  <td>{team.name}</td>
+                  <td>{team.abbrv}</td>
+                  <td>
                     <Button
                       bsStyle="primary"
                       onClick={ () => this.setState({ showModal: true, team: team }) }     
                       block         
                     >Manage</Button>
-                  </td>              
+                  </td>  
+                  <td>
+                  <Button
+                    bsStyle="link"
+                    onClick={() => handleRemove(team._id, event._id)}
+                    block
+                  >Remove</Button>
+                </td>            
                 </tr>
               ))}
             </tbody>
           </Table> : <Alert bsStyle="warning">No teams yet!</Alert>}
               
           <Modal show={ this.state.showModal } onHide={ () => this.setState({ showModal: false }) }>
+            <Modal.Header>
+              Manage Roster
+            </Modal.Header>
             <Modal.Body>
-              {this.state.team ? (
-                <div>
-                  <TeamSettings team={ this.state.team } /> 
-                  <RosterEditor eventId={ eventId } team={ this.state.team } /> 
-                </div>
-              ) : ( <div /> )}
+              {this.state.team && (
+                <RosterEditor eventId={ event._id } team={ this.state.team } /> 
+              )}
             </Modal.Body>
             <Modal.Footer>
-              {this.state.team ? (
-                <Button bsStyle="danger" className="pull-left" onClick={ this.handleRemoveTeam.bind(this) }>Delete Team</Button>
-              ) : ( <div /> )}
               <Button onClick={ () => this.setState({ showModal: false }) }>Close</Button>
             </Modal.Footer>
           </Modal>
@@ -100,7 +99,7 @@ class EventEditorTeams extends React.Component {
 }
 
 EventEditorTeams.propTypes = {
-  eventId: PropTypes.string,
+  event: PropTypes.object.isRequired,
   loading: PropTypes.bool.isRequired,
   teams: PropTypes.arrayOf(PropTypes.object).isRequired,
 };
@@ -109,8 +108,8 @@ export default createContainer(({ event }) => {
   const subscription = Meteor.subscribe('teams.event', event._id);
   
   return{
-    eventId: event._id,
+    event: event,
     loading: !subscription.ready(),
-    teams: TeamsCollection.find().fetch(),
+    teams: TeamsCollection.find({ 'events.eventId': event._id }).fetch(),
   };
 }, EventEditorTeams);

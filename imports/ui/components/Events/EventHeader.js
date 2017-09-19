@@ -15,23 +15,17 @@ const canEdit = ({ event }) => {
 const EventHeader = ({ event, history, editing }) => (
   <div className="EventHeader">
       <PageHeader>
-        {editing ? (
-          // when editing the event (i.e. the owner), show the view button 
-          <Link className="btn btn-primary" style={{"marginBottom":"5px"}} to={`/events/${event._id}`}>View</Link>
+        { event.title } <small>{ event.location }</small>
+        { editing ? (
+          // when editing the event
+          <Link className="btn btn-primary pull-right" style={{"marginTop":"10px"}} to={`/events/${event._id}`}>View Scoreboard</Link>
         ) : (
           canEdit({event}) ? ( 
             // when viewing the event, if you are the owner, show the edit button
-            <Link className="btn btn-primary" style={{"marginBottom":"5px"}} to={`/events/${event._id}/edit`}>Edit</Link>
+            <Link className="btn btn-primary pull-right" style={{"marginTop":"10px"}} to={`/events/${event._id}/edit`}>Edit Event</Link>
           ) : (
             null
           )
-        )}
-        &nbsp;&nbsp;{ event.title } <small>{ event.location }</small>
-        {editing ? (
-          // when editing the event
-        <Link className="btn btn-link pull-right" style={{"marginTop":"10px"}} to={`/events`}>Back to Events</Link>
-        ) : (
-          null
         )}
       </PageHeader>
 

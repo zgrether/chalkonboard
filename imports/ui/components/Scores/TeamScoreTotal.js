@@ -12,13 +12,13 @@ import './TeamScoreTotal.scss'
 
 class TeamScoreTotal extends React.Component {
   render() {
-    const { loading, total } = this.props;
+    const { score, loading, team, game } = this.props;
 
     return (
       !loading ? (
           <tr>
             <td className="teamName">Total</td>
-            <td className="scoreCol">{total}</td>
+            <td className="scoreCol">{score.raw}</td>
             <td />
             <td />
           </tr>
@@ -32,21 +32,35 @@ class TeamScoreTotal extends React.Component {
 }
 
 TeamScoreTotal.propTypes = {
-  loading: PropTypes.bool.isRequired,
-  total: PropTypes.number,
+  score: PropTypes.object,
+  loading: PropTypes.bool,
+  team: PropTypes.object,
+  game: PropTypes.object,
 };
 
 export default createContainer(({ game, team }) => {
-  const subscription = Meteor.subscribe('scores.teamgame', team._id, game._id);
-  const scores = ScoresCollection.find({ gameId: game._id, teamId: team._id }).fetch();
+  let scoreId;
 
-  let total = 0;
-  scores.forEach((score) => {
-    total += score.raw;
-  });
+  if (team.games) {
+    team.games.forEach((teamGame) => {
+      if (teamGame.gameId == game._id) {
+        scoreId = teamGame.scoreId;
+      }
+    });
+  }
 
-  return {
-    loading: !subscription.ready(),
-    total,
+  if (scoreId) {
+    const subscription = Meteor.subscribe('scores.view', scoreId);
+    
+    return {
+      score: ScoresCollection.findOne(scoreId),
+      loading: !subscription.ready(),
+      team: team,
+      game: game,
+    }
+  } else {
+    return {
+      loading: true,
+    }
   }
 }, TeamScoreTotal);

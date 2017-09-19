@@ -10,9 +10,9 @@ import validate from '../../../modules/validate';
 class PlayerAdd extends React.Component {
   componentDidMount() {
     const component = this;
-    validate(component.form, {
+    validate(component.playerForm, {
       rules: {
-        name: {
+        playerName: {
           required: true,
         },
         emailAddress: {
@@ -21,7 +21,7 @@ class PlayerAdd extends React.Component {
         },
       },
       messages: {
-        title: {
+        playerName: {
           required: 'Need a name for your player.',
         },
         emailAddress: {
@@ -38,7 +38,7 @@ class PlayerAdd extends React.Component {
   handleSubmit() {
     
     const player = {
-      name: this.name.value,
+      name: this.playerName.value,
       email: this.emailAddress.value,
     };
 
@@ -46,7 +46,7 @@ class PlayerAdd extends React.Component {
       if (error) {
         Bert.alert(error.reason, 'danger');
       } else {
-        this.form.reset();
+        this.playerForm.reset();
         Bert.alert('Player created!', 'success');
       }
     });
@@ -55,15 +55,15 @@ class PlayerAdd extends React.Component {
   render() {
 
     return (
-      <form ref={form => (this.form = form) } onSubmit={e => e.preventDefault()}>
+      <form ref={playerForm => (this.playerForm = playerForm) } onSubmit={e => e.preventDefault()}>
         <Row>
           <Col xs={ 5 } md={ 5 }>
             <FormGroup>
-              <ControlLabel>Name</ControlLabel>
+              <ControlLabel>Player Name</ControlLabel>
               <input
                 type="text"
-                name="name"
-                ref={name => (this.name = name)}
+                name="playerName"
+                ref={playerName => (this.playerName = playerName)}
                 className="form-control"
               />
             </FormGroup>

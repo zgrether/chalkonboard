@@ -11,18 +11,12 @@ import PlayerSelectTeam from '../Players/PlayerSelectTeam';
 import validate from '../../../modules/validate';
 import Loading from '../Loading/Loading';
 
-const handleRemoveFromTeam = (playerId) => {
-  const updatePlayer = {
-    _id: playerId,
-    teamId: "",
-    teamName: "",
-  };
-
-  Meteor.call('players.updateteam', updatePlayer, (error, playerId) => {
+const handleRemoveFromTeam = (playerId, teamId) => {
+  Meteor.call('players.removeTeam', playerId, teamId, (error) => {
     if (error) {
       Bert.alert(error.reason, 'danger');
     } else {
-      Bert.alert('Player added', 'success');
+      Bert.alert('Player removed', 'success');
     }
   });
 }
@@ -30,31 +24,29 @@ const handleRemoveFromTeam = (playerId) => {
 class RosterEditor extends React.Component {
 
   render() {
-    const nameStyle = { verticalAlign: 'middle', textAlign: 'left', width: 200 };
-    const narrowStyle = { verticalAlign: 'middle', textAlign: 'center', width: 10 };   
-    const { eventId, team, loading, playersOnTeam, playersNotOnTeam } = this.props;
-
+    const { eventId, team, playersOnTeam, playersNotOnTeam } = this.props;
+ 
     return (
-      !loading ? (
+
         <div>
-          <PlayerSelectTeam eventId={eventId} teamId={team._id} teamName={team.name}/>
+          <PlayerSelectTeam eventId={eventId} teamId={team._id} teamName={team.name} playersNotOnTeam={playersNotOnTeam}/>
 
           { playersOnTeam.length ?
             <Table condensed striped>
               <thead>
                 <tr>
-                  <th style={ nameStyle }>Current Players</th>
-                  <th style={ narrowStyle }></th>
+                  <th>Current Players</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
                 {playersOnTeam.map((player) => (
                   <tr key={player._id}>
-                    <td style={ nameStyle }>{player.name}</td>
-                    <td style={ narrowStyle }>
+                    <td>{player.name}</td>
+                    <td>
                       <Button
                         bsStyle="link"
-                        onClick={ () => handleRemoveFromTeam(player._id)}
+                        onClick={ () => handleRemoveFromTeam(player._id, team._id)}
                         block
                       >Remove</Button>
                     </td>
@@ -64,27 +56,24 @@ class RosterEditor extends React.Component {
             </Table> : <Alert bsStyle="warning">No players yet!</Alert>
           }
         </div>
-      ) : (
-        <Loading />
-      )
+
     );
   }
 }
 
 RosterEditor.propTypes = {
   eventId: PropTypes.string,
-  teamId: PropTypes.string,
-  loading: PropTypes.bool.isRequired,
+  team: PropTypes.object,
   playersOnTeam: PropTypes.arrayOf(PropTypes.object).isRequired,
+  playersNotOnTeam: PropTypes.arrayOf(PropTypes.object).isRequired,
 };
 
 export default createContainer(({ eventId, team }) => {
-  const subscription = Meteor.subscribe('players.event', eventId);
 
   return {
     eventId: eventId,
     team: team,
-    loading: !subscription.ready(),
-    playersOnTeam: Players.find({teamId: team._id}).fetch(),
+    playersOnTeam: Players.find({'events.eventId': eventId, 'events.teamId': team._id}).fetch(),
+    playersNotOnTeam: Players.find({'events.eventId': eventId, 'events.teamId': { $ne: team._id}}).fetch(),
   };
 }, RosterEditor);

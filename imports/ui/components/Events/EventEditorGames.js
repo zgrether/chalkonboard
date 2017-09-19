@@ -10,6 +10,7 @@ import GamesCollection from '../../../api/Games/Games';
 import Loading from '../../components/Loading/Loading';
 import GameAdd from '../Games/GameAdd';
 import GameEditor from '../Games/GameEditor';
+import EventScoreboard from './EventScoreboard';
 
 class EventEditorGames extends React.Component {
   constructor(props) {
@@ -51,15 +52,15 @@ class EventEditorGames extends React.Component {
   };
 
   render() {
-    const mediumStyle = { verticalAlign: 'middle', textAlign: 'center', width: 400 };
-    const nameStyle = { verticalAlign: 'middle', textAlign: 'left', width: 200 };
-    const narrowStyle = { verticalAlign: 'middle', textAlign: 'center', width: 10 };  
-    const newStyle = { verticalAlign: 'bottom' }; 
-    const { event, loading, games } = this.props;
+
+    const { event, loading, games, history } = this.props;
 
     return (
       !loading ? (
         <div className="EventEditorGames">
+          
+          <EventScoreboard event={event} history={history} editing={true}/>
+
           <PageHeader>
             <GameAdd event={event} />
           </PageHeader>
@@ -105,6 +106,7 @@ class EventEditorGames extends React.Component {
 EventEditorGames.propTypes = {
   event: PropTypes.object.isRequired,
   loading: PropTypes.bool.isRequired,
+  history: PropTypes.object.isRequired,
   games: PropTypes.arrayOf(PropTypes.object).isRequired,
 };
 

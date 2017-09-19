@@ -7,17 +7,17 @@ import { Meteor } from 'meteor/meteor';
 import { Bert } from 'meteor/themeteorchef:bert';
 import validate from '../../../modules/validate';
 
-class PlayerEditor extends React.Component {
+class TeamEditor extends React.Component {
   componentDidMount() {
     const component = this;
     validate(component.form, {
       rules: {
-        playerName: { required: true },
-        email: { required: false },
+        teamName: { required: true },
+        teamAbbreviation: { required: true },
       },
       messages: { 
-        playerName: { required: 'This needs a name' },
-        email: { required: 'This needs a email' },
+        teamName: { required: 'This needs a name' },
+        teamAbbreviation: { required: 'This needs an abbreviation' },
       },
       submitHandler() {
         component.handleSubmit();
@@ -26,42 +26,42 @@ class PlayerEditor extends React.Component {
   }
 
   handleSubmit() {
-    const { player } = this.props;
-    const playerId = player._id;
+    const { team } = this.props;
+    const teamId = team._id;
 
-    const updatePlayer = {
-      _id: playerId,
-      name: document.querySelector(`[name="playerName"]`).value,
-      email: document.querySelector(`[name="email"]`).value,
+    const updateTeam = {
+      _id: teamId,
+      name: document.querySelector(`[name="teamName"]`).value,
+      abbrv: document.querySelector(`[name="teamAbbreviation"]`).value
     };
 
-    Meteor.call('players.updateinfo', updatePlayer, (error) => {
+    Meteor.call('teams.updateinfo', updateTeam, (error) => {
       if (error) {
         Bert.alert(error.reason, 'danger');
       } else {
-        Bert.alert('Player updated!', 'success');
+        Bert.alert('Team updated!', 'success');
       }
     });
   }
 
   render() {
 
-    const { player } = this.props;
-    
+    const { team } = this.props;
+
     return (
-  
+
       <form ref={form => (this.form = form) } onSubmit={ e => e.preventDefault() }>
         <Row>
           <Col xs={ 5 } md={ 5 }>
             <FormGroup>
               <ControlLabel>Name</ControlLabel>
-              <FormControl type="text" name="playerName" placeholder="Name" defaultValue={player.name}/>
+              <FormControl type="text" name="teamName" placeholder="Name" defaultValue={team.name}/>
             </FormGroup>
           </Col>
           <Col xs={ 5 } md={ 5 }>
             <FormGroup>
-              <ControlLabel>Email</ControlLabel>
-              <FormControl type="email" name="email" placeholder="Email" defaultValue={player.email}/>
+              <ControlLabel>Abbreviation</ControlLabel>
+              <FormControl type="text" name="teamAbbreviation" placeholder="Abbreviation" defaultValue={team.abbrv}/>
             </FormGroup>
           </Col>
           <Col xs={ 2 } md={ 2 }>
@@ -73,8 +73,8 @@ class PlayerEditor extends React.Component {
   }
 }  
 
-PlayerEditor.propTypes = {
-  player: PropTypes.object,
+TeamEditor.propTypes = {
+  team: PropTypes.object,
 };
 
-export default PlayerEditor;
+export default TeamEditor;

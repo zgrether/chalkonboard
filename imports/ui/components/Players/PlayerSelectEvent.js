@@ -11,40 +11,11 @@ import validate from '../../../modules/validate';
 import Loading from '../Loading/Loading';
 
 class PlayerSelectEvent extends React.Component {
-  componentDidMount() {
-    const component = this;
-    validate(component.form, {
-      rules: {
-        name: {
-          required: true,
-        },
-        eventId: {
-          required: true,
-        },
-      },
-      messages: {
-        name: {
-          required: 'Need a name for your player.',
-        },
-        eventId: {
-          required: 'Need an event ID.',
-        },
-      },
-      submitHandler() {
-        component.handleSubmit();
-      },
-    });
-  }
-
   handleSubmit() {
     const { eventId } = this.props;
+    const playerId = document.querySelector(`[name="playerSelect"]`).value;
 
-    const updatePlayer = {
-      _id: document.querySelector(`[name="playerSelect"]`).value,
-      eventId: eventId,
-    };
-    
-    Meteor.call('players.addEvent', updatePlayer, (error) => {
+    Meteor.call('players.addEvent', playerId, eventId, (error) => {
       if (error) {
         Bert.alert(error.reason, 'danger');
       } else {
@@ -54,8 +25,7 @@ class PlayerSelectEvent extends React.Component {
   }
 
   render() {
-    const nameStyle = { verticalAlign: 'middle', textAlign: 'left', width: 200 };
-    const narrowStyle = { verticalAlign: 'middle', textAlign: 'center', width: 10 };   
+  
     const { eventId, loading, playersNotInEvent } = this.props;
 
     return (
@@ -91,12 +61,12 @@ PlayerSelectEvent.propTypes = {
 };
 
 export default createContainer(({ eventId }) => {
-  const subscription = Meteor.subscribe('players', eventId);
+  const subscription = Meteor.subscribe('players.notevent', eventId);
   
   return {
     eventId: eventId,
     loading: !subscription.ready(),
-    playersNotInEvent: Players.find({events: {$ne: eventId}}).fetch(),
+    playersNotInEvent: Players.find({'events.eventId': { $ne: eventId } }).fetch(),
   };
 }, PlayerSelectEvent);
 

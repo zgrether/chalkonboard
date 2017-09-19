@@ -15,11 +15,14 @@ Meteor.methods({
       bteam: Boolean,
     });
 
+    const eventId = game.eventId;
+    const bteam = game.bteam;
+
     try {
       game.type = "Generic Scoring";
       game.rules = "There are no rules";
       game.sumpoints = false;
-      game.order = Games.find({ eventId: game.eventId }).fetch().length;
+      game.order = Games.find({ eventId: eventId }).fetch().length;
       game.teeId = "none";
       game.venueId = "none";
 
@@ -38,18 +41,20 @@ Meteor.methods({
       });
 
       // join all players to the new game
-      const players = Players.find({ events: {$in: [game.eventId]} });
+      const players = Players.find({ 'events.eventId': eventId });
       players.forEach((player) => {
         const playerScore = {
           raw: 0,
           final: 0,
           playerId: player._id,
           gameId: gameId,
-          eventId: game.eventId,
+          eventId: eventId,
         };
 
+        const playerTeamId = player.events[0].teamId;
+
         // player.teamId may be null and won't pass "check" in scores.insertplayer
-        Meteor.call('scores.insertplayer', playerScore, player.teamId, (error, scoreId) => {
+        Meteor.call('scores.insertplayer', playerScore, playerTeamId, (error, scoreId) => {
           if (error) {
             console.log(error);
           }
@@ -57,14 +62,14 @@ Meteor.methods({
       });
 
       // join all teams to the new game
-      const teams = Teams.find({ eventId: game.eventId });
+      const teams = Teams.find({ 'events.eventId': eventId });
       teams.forEach((team) => {
         const teamScore = {
           raw: 0,
           final: 0,
           teamId: team._id,
           gameId: gameId,
-          eventId: game.eventId,
+          eventId: eventId,
         };
 
         Meteor.call('scores.insertteam', teamScore, (error, scoreId) => {
@@ -175,7 +180,7 @@ Meteor.methods({
 
       const players = Players.find({ "games.gameId": gameId });
       players.forEach((player) => {
-        Meteor.call('players.quitGame', player._id, (error) => {
+        Meteor.call('players.quitGame', "", player._id, null, gameId, (error) => {
           if (error) {
             console.log(error);
           }
@@ -184,7 +189,7 @@ Meteor.methods({
      
       const teams = Teams.find({ "games.gameId": gameId });
       teams.forEach((team) => {
-        Meteor.call('teams.quitGame', team._id, (error) => {
+        Meteor.call('teams.quitGame', "", team._id, null, gameId, (error) => {
           if (error) {
             console.log(error);
           }
@@ -200,9 +205,15 @@ Meteor.methods({
         });
       });
 
+      // recalculate event final score tallies
+      Meteor.call('scores.updateTotals', eventId, (error) => {
+        if (error) {
+          console.log(error);
+        }
+      });
+      
       return gameId;
     } catch (exception) {
-      console.log(exception);
       throw new Meteor.Error('500', exception);
     }
   },
