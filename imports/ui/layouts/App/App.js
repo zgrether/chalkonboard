@@ -56,16 +56,17 @@ const App = props => (
           <Authenticated exact path="/games" component={Games} {...props} />
           {/* <Authenticated exact path="/games/:_id" component={ViewGame} {...props} /> */}
           <Authenticated exact path="/games/:_id/edit" component={EditGame} {...props} />
-          {/* <Authenticated exact path="/scores/:shareId" component={ScoreEvent} {...props} /> */}
-          <Authenticated exact path="/profile" component={Profile} {...props} />
+          {/* <Authenticated exact path="/scores/:shareId" component={ScoreEvent} {...props} />
+          <Authenticated exact path="/profile" component={Profile} {...props} /> */}
           <Authenticated exact path="/scores" component={Scores} {...props} />
           <Authenticated exact path="/dashboard" component={Dashboard} {...props} /> 
           <Public path="/events/:_id" component={ViewEvent} {...props} />
-          <Public path="/scores/:shareId" component={ScoreEvent} {...props} />
+          {/* <Public path="/scores/:shareId" component={ScoreEvent} {...props} /> */}
           <Public path="/games/:_id" component={ViewGame} {...props} /> */}
           <Public path="/signup" component={Signup} {...props} />
           <Public path="/login" component={Login} {...props} />
           <Public path="/logout" component={Logout} {...props} />
+          <Route name="scoreId" path="/scores/:shareId" component={ScoreEvent} />
           <Route name="recover-password" path="/recover-password" component={RecoverPassword} />
           <Route name="reset-password" path="/reset-password/:token" component={ResetPassword} />
           <Route component={NotFound} />
