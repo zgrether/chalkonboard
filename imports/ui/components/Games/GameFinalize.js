@@ -2,7 +2,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'react-bootstrap';
+import { Button, Row, Col } from 'react-bootstrap';
 import { Meteor } from 'meteor/meteor';
 import { Bert } from 'meteor/themeteorchef:bert';
 import { createContainer } from 'meteor/react-meteor-data';
@@ -10,25 +10,49 @@ import ScoresCollection from '../../../api/Scores/Scores';
 import PointsCollection from '../../../api/Points/Points';
 import Loading from '../Loading/Loading';
 
-const gameFinalize = (game, scores, points, history) => {
+const gameSetFinalScores = (game, scores, points, history) => {
   Meteor.call('scores.awardFinals', game, scores, points, (error) => {
     if (error) {
       Bert.alert(error.reason, 'danger');
     } else {
-      Bert.alert('Game Final!', 'success');
+      if (points) {
+        Bert.alert('Game Final!', 'success');
+      } else {
+        Bert.alert('Game Reset!', 'success');
+      }
       history.push(`/events/${game.eventId}`);
     }
   });
 }
 
 const GameFinalize = ({scores, points, game, history}) => (
-  <div>
-    {points.map((point) => (
-      scores[point.order] && (
-        <p key={point.order}>Place: {point.order+1}  Score: {scores[point.order].raw}  Awarded: {point.awarded}</p>
-      ) 
-    ))}
-    <Button type="button" bsStyle="success" onClick={() => gameFinalize(game, scores, points, history)}>Finalize</Button> 
+  <div style={{"textAlign":"center"}}>
+    
+    <h5>Award Final Scores (ties get averaged)</h5>
+
+    {points.length > 0 ? (
+      <Button type="button" bsStyle="success" onClick={() => gameSetFinalScores(game, scores, points, history)}>
+        | {points.map((point) => (<span key={point.order}> {point.awarded} |</span>))}
+      </Button> 
+    ) : (
+      <Button type="button" bsStyle="success" disabled>No points to award</Button>   
+    )}
+    
+    <br />
+    <br />
+
+    <h5>Reset Final Scores to 0 for {game.title}</h5>  
+    <Button type="button" bsStyle="warning" onClick={ () => gameSetFinalScores(game, scores, null, history) }>Reset Final Scores</Button>
+
+    <br />
+    <br />
+    
+    {/* <h5>Reset ALL Player/Team Scores for {game.title}</h5>
+    <Button type="button" bsStyle="danger" onClick={ () => resetAllScores(game) }>Reset All Scores</Button>
+
+    <br />
+    <br /> */}
+
   </div>
 );
 

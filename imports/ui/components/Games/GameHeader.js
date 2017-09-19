@@ -10,7 +10,6 @@ import EventsCollection from '../../../api/Events/Events';
 
 const returnToScoreboard = (history, game) => {
   history.goBack();
-//  history.push(`/events/${game.eventId}`);
 }
 
 const canEdit = ({ event }) => {
@@ -28,7 +27,7 @@ class GameHeader extends React.Component {
       showModal: false,
       showModalRules: false,
       game: undefined,
-      name: "",
+      title: "",
     };
   }
   
@@ -59,23 +58,22 @@ class GameHeader extends React.Component {
             {editing ? (
               <ButtonGroup className="pull-right">
                 <Button onClick={ () => returnToScoreboard(history, game) }>Scoreboard</Button>
-                <Button onClick={ () => this.setState({ showModalRules: true, game: game, name: game.title }) }>Rules</Button>
+                <Button onClick={ () => this.setState({ showModalRules: true, game: game, title: game.title }) }>Rules</Button>
               </ButtonGroup>
             ) : (
               <ButtonGroup className="pull-right">
-                <Button onClick={ () => this.setState({ showModal: true, game: game, name: game.title }) }>End Game</Button>
+                <Button onClick={ () => this.setState({ showModal: true, game: game, title: game.title }) }>Manage</Button>
                 <Button onClick={ () => returnToScoreboard(history, game) }>Scoreboard</Button>
-                <Button onClick={ () => this.setState({ showModalRules: true, game: game, name: game.title }) }>Rules</Button>
+                <Button onClick={ () => this.setState({ showModalRules: true, game: game, title: game.title }) }>Rules</Button>
               </ButtonGroup>      
             )}
           </PageHeader>
           
-          
-
           <Modal show={ this.state.showModal } onHide={ () => this.setState({ showModal: false }) }>
             <Modal.Header closeButton>
-              <Modal.Title>Finalize {this.state.name}</Modal.Title>
+              <Modal.Title>Manage {this.state.title}</Modal.Title>
             </Modal.Header>
+
             <Modal.Body>
               <GameFinalize game={ this.state.game } history={ history } /> 
             </Modal.Body>

@@ -219,25 +219,62 @@ Meteor.methods({
   },
   'scores.awardFinals': function scoresAwardFinals(game, scores, points) {
     try {
-      let index = 0;
-      scores.forEach((score) => {
-        if (points[index])
-          score.final = points[index].awarded;
-        else
+      const numScores = scores.length;
+      let newScore = [];
+      let totalPoints;
+      let i = 0;
+      let j = 0;
+      let k = 0;
+
+      if (points) {
+        while (i < numScores) {
+          if (points[i]) {
+            totalPoints = points[i].awarded;
+          } else {
+            totalPoints = 0;
+          }
+
+          let count = 1;
+          for (j = (i + 1); j < numScores; j++) {
+            if (scores[i].raw == scores[j].raw) {
+              if (points[j]) {
+                totalPoints += points[j].awarded;
+              } else {
+                totalPoints += 0;
+              }
+              count += 1;
+            }
+          }
+          k = i;
+          for (k; k < i + count; k++) {
+            scores[k].final = totalPoints / count;
+          }
+          i = k;
+        }
+        scores.forEach((score) => {
+          Scores.update(score._id, {
+            $set: score,
+          });
+        });
+      } else {
+        scores.forEach((score) => {
+          
           score.final = 0;
 
-        Scores.update(score._id, {
-          $set: score,
+          Scores.update(score._id, {
+            $set: score,
+          });
         });
-        index++;
-      });
+      }
 
       Meteor.call('scores.updateTotals', game.eventId, (error) => {
         if (error) {
           console.log(error);
         }
       });
+
     } catch (exception) {
+      console.log(exception);
       throw new Meteor.Error('500', exception);
     }
   },
