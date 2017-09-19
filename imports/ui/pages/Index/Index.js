@@ -4,16 +4,6 @@ import { Button, FormGroup } from 'react-bootstrap';
 
 import './Index.scss';
 
-const viewEvent = (shareId, history) => {
-  Meteor.call('events.eventIdFromShareId', shareId, (error, eventId) => {
-    if (error) {
-      Bert.alert('danger', error);
-    } else {
-      history.push(`/events/${eventId}`);
-    }
-  })
-}
-
 const sendToEvent = (shareId, history) => {
   history.push(`/scores/${shareId}`);
 }

@@ -12,17 +12,21 @@ class ScoreEvent extends React.Component {
 
   render() {
 
-    const { loading, events, history } = this.props;
+    const { loading, found, events, history } = this.props;
 
     return (
-      !loading && event ? (
-        <div className="ScoreEvent">
-          <EventHeader event={event} history={history} />
+      !loading ? (
+         found ? (
+          <div className="ScoreEvent">
+            <EventHeader event={event} history={history} />
 
-          <EventScoreboard event={event} history={history} />
-        </div>
-      ) : ( 
-        <Alert bsStyle="warning">This event is not available</Alert> 
+            <EventScoreboard event={event} history={history} />
+          </div>
+        ) : ( 
+          <Alert bsStyle="warning">This event is not available</Alert> 
+        )
+      ) : (
+        <Loading />
       )
     );
   }
@@ -31,6 +35,7 @@ class ScoreEvent extends React.Component {
 ScoreEvent.propTypes = {
   loading: PropTypes.bool.isRequired,
   event: PropTypes.object,
+  found: PropTypes.bool.isRequired,
   history: PropTypes.object.isRequired,
 };
 
@@ -38,12 +43,16 @@ export default createContainer(({ match }) => {
   const shareId = match.params.shareId;
   const subscription = Meteor.subscribe('events.shareId', shareId);
   const events = EventsCollection.find({ shareId: shareId }).fetch();
+  let found = false;
 
-  if (events.length > 0)
+  if (events.length > 0) {
     event = events[0];
+    found = true;
+  }
 
   return {
     loading: !subscription.ready(),
     event: event,
+    found: found,
   };
 }, ScoreEvent);
