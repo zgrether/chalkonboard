@@ -24,7 +24,7 @@ const Index = ({history}) => (
       src="https://s3-us-west-2.amazonaws.com/cleverbeagle-assets/graphics/email-icon.png"
       alt="Clever Beagle"
     />
-    <h1>Event Master</h1>
+    <h1>Chalk On Board</h1>
     <div className="centerButton">
       <form>
         <FormGroup>
