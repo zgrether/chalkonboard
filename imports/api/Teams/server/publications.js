@@ -3,7 +3,7 @@ import { check } from 'meteor/check';
 import Teams from '../Teams';
 
 Meteor.publish('teams', function teams() {
-  return Teams.find();
+  return Teams.find({ owner: this.userId });
 });
 
 Meteor.publish('teams.view', function teamsView(teamId) {
