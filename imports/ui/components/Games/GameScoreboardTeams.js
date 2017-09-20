@@ -30,6 +30,9 @@ class GameScoreboardTeams extends React.Component {
                   <th className="scoreCol">Score</th>
                   <th/>
                   <th/>
+                  {!editing && (
+                    <th/>
+                  )}
                 </tr>
               </thead>
               <tbody>

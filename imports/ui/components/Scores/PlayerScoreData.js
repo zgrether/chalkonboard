@@ -5,7 +5,7 @@ import ScoresCollection from '../../../api/Scores/Scores';
 import { createContainer } from 'meteor/react-meteor-data';
 import { Meteor } from 'meteor/meteor';
 import { Bert } from 'meteor/themeteorchef:bert';
-import { Button, Alert, Modal } from 'react-bootstrap';
+import { Button, Alert, Modal, Row, Col, Well } from 'react-bootstrap';
 
 import './PlayerScoreData.scss';
 
@@ -17,7 +17,7 @@ const initializePlayer = (player, team, game) => {
     gameId: game._id,
     eventId: game.eventId,
   };
-  console.log(team._id);
+  
   Meteor.call('scores.insertplayer', playerScore, team._id, (error, scoreId) => {
     
     if (error) {
@@ -59,6 +59,33 @@ const incScore = (player, playerTeamId, scoreId, gameId, inc) => {
 }
 
 class PlayerScoreData extends React.Component {
+  constructor(props) {
+    super(props);
+    
+    this.state = {
+      showModal: false,
+      title: "",
+      scorevalue: "",
+      minus: false,
+    };
+  }
+  
+  handleSubmitValue(e) {
+    e.preventDefault();
+
+    const { score, player, team, game, editing } = this.props;
+    let submitScore;
+
+    if (this.state.minus) { 
+      submitScore = -parseInt(this.state.scorevalue);
+    } else {
+      submitScore = parseInt(this.state.scorevalue);
+    }
+
+    incScore(player, player.events[0].teamId, score._id, game._id, submitScore);
+
+    this.setState({ showModal: false });
+  }
 
   render() {
     const { score, player, team, game, editing } = this.props;
@@ -86,6 +113,83 @@ class PlayerScoreData extends React.Component {
             <td>{score.raw}</td>
             <td><Button bsStyle="primary" onClick={ () => incScore(player, player.events[0].teamId, score._id, game._id, -1) }>-</Button></td>
             <td><Button bsStyle="primary" onClick={ () => incScore(player, player.events[0].teamId, score._id, game._id, 1) }>+</Button></td>
+            <td><Button bsStyle="primary" onClick={ () => this.setState({ showModal: true, scorevalue: "", minus: false }) }>#</Button></td>
+          
+            <Modal bsSize="small" show={ this.state.showModal } onHide={ () => this.setState({ showModal: false }) }>
+              <Modal.Header closeButton>
+                <Modal.Title>Enter Score</Modal.Title>
+              </Modal.Header>
+              
+              <Modal.Body>
+                <Row>
+                  <Well className="styleWell"><span className="centerText">{this.state.minus && "-" }{this.state.scorevalue}</span></Well>
+                </Row>
+            
+                <Row>
+                  <Col xs={4} md={4}>
+                    <Button bsStyle="primary" block onClick={ () => this.setState({ scorevalue: (this.state.scorevalue + 1) }) }>1</Button>
+                  </Col>
+                  <Col xs={4} md={4}>
+                    <Button bsStyle="primary" block onClick={ () => this.setState({ scorevalue: (this.state.scorevalue + 2) }) }>2</Button>
+                  </Col>
+                  <Col xs={4} md={4}>
+                    <Button bsStyle="primary" block onClick={ () => this.setState({ scorevalue: (this.state.scorevalue + 3) }) }>3</Button>
+                  </Col>
+                </Row>
+
+                <br />
+
+                <Row>
+                  <Col xs={4} md={4}>
+                    <Button bsStyle="primary" block onClick={ () => this.setState({ scorevalue: (this.state.scorevalue + 4) }) }>4</Button>
+                  </Col>
+                  <Col xs={4} md={4}>
+                    <Button bsStyle="primary" block onClick={ () => this.setState({ scorevalue: (this.state.scorevalue + 5) }) }>5</Button>
+                  </Col>
+                  <Col xs={4} md={4}>
+                    <Button bsStyle="primary" block onClick={ () => this.setState({ scorevalue: (this.state.scorevalue + 6) }) }>6</Button>
+                  </Col>
+                </Row>
+
+                <br />
+
+                <Row>
+                  <Col xs={4} md={4}>
+                    <Button bsStyle="primary" block onClick={ () => this.setState({ scorevalue: (this.state.scorevalue + 7) }) }>7</Button>
+                  </Col>
+                  <Col xs={4} md={4}>
+                    <Button bsStyle="primary" block onClick={ () => this.setState({ scorevalue: (this.state.scorevalue + 8) }) }>8</Button>
+                  </Col>
+                  <Col xs={4} md={4}>
+                    <Button bsStyle="primary" block onClick={ () => this.setState({ scorevalue: (this.state.scorevalue + 9) }) }>9</Button>
+                  </Col>
+                </Row>
+
+                <br />
+
+                <Row>
+                  <Col xs={4} md={4}>
+                    <Button bsStyle="primary" block onClick={ () => this.setState({ scorevalue: "" })}>Clear</Button>
+                  </Col>
+                  <Col xs={4} md={4}>
+                    <Button bsStyle="primary" block onClick={ () => this.setState({ scorevalue: (this.state.scorevalue + 0) }) }>0</Button>
+                  </Col>
+                  <Col xs={4} md={4}>
+                    <Button bsStyle="primary" block onClick={ () => this.setState({ minus: !this.state.minus }) }>-</Button>
+                  </Col>
+                </Row>
+
+                <br />
+
+                <Row>
+                  <Col xs={4} xsOffset={4} md={4} mdOffset={4}>
+                    <Button bsStyle="success" block onClick={ this.handleSubmitValue.bind(this)}>Submit</Button>
+                  </Col>
+                </Row>
+
+              </Modal.Body>
+            
+            </Modal>
           </tr>
         ) : (
           <tr />
