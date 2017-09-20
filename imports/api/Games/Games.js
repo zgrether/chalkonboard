@@ -42,6 +42,11 @@ Games.schema = new SimpleSchema({
     label: 'The type of game, particularly sport.',
     required: false,
   },
+  golftype: {
+    type: String,
+    label: 'The type of golf game.',
+    required: false,
+  },
   sumpoints: {
     type: Boolean,
     label: 'If team-based event, this sums the players on team.',

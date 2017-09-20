@@ -18,6 +18,7 @@ class GameEditor extends React.Component {
       rules: {
         title: { required: true },
         type: { required: true },
+        golftype: { required: false },
         rules: { required: false },
         sumpoints: { required: false },
       },
@@ -46,9 +47,11 @@ class GameEditor extends React.Component {
     if (updateGame.type == "Generic Scoring") {
       updateGame.teeId = "none";
       updateGame.venueId = game.venueId;
-    } else {
+      updateGame.golftype = "none";
+    } else if (updateGame.type == "Golf") {
       updateGame.venueId = "none";
       updateGame.teeId = game.teeId;
+      updateGame.golftype = "Stroke Play";      
     }
 
     Meteor.call('games.update', updateGame, (error) => {
@@ -96,14 +99,26 @@ class GameEditor extends React.Component {
               )}
 
             <FormGroup>
-                <ControlLabel>Sport</ControlLabel>
-                <FormControl componentClass="select" name="sport" defaultValue={game.type} onChange={ this.handleSubmit.bind(this) }>
-                  <option value="Generic Scoring">Generic Scoring</option>
-                  <option value="Golf">Golf</option>
-                </FormControl>
-              </FormGroup>
+              <ControlLabel>Sport</ControlLabel>
+              <FormControl componentClass="select" name="sport" defaultValue={game.type} onChange={ this.handleSubmit.bind(this) }>
+                <option value="Generic Scoring">Generic Scoring</option>
+                <option value="Golf">Golf</option>
+              </FormControl>
+            </FormGroup>
+
+              {game.type == "Golf" ? (
+                <FormGroup>
+                  <ControlLabel>Golf Scoring</ControlLabel>
+                  <FormControl componentClass="select" name="golftype" defaultValue={game.golftype} onChange={ this.handleSubmit.bind(this) }>
+                    <option value="Stroke Play">Stroke Play</option>
+                  </FormControl>
+                </FormGroup>
+              ) : (
+                null
+              )}
 
             </form>
+
             <VenueSelector game={game} />
      
 

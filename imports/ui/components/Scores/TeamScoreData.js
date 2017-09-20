@@ -7,6 +7,8 @@ import { Meteor } from 'meteor/meteor';
 import { Bert } from 'meteor/themeteorchef:bert';
 import { Button, Alert } from 'react-bootstrap';
 
+import './TeamScoreData.scss';
+
 const initializeTeam = (team, game) => {
   const teamScore = {
     raw: 0,
@@ -64,23 +66,23 @@ class TeamScoreData extends React.Component {
         editing ? (
           score ? (
             <tr key={team._id}>
-              <td>{team.name}</td>
-              <td className="scoreCol">{score.raw}</td>
+              <td className="teamName">{team.abbrv}</td>
+              <td>{score.raw}</td>
               <td><Button bsStyle="primary" onClick={ () => editScore(score._id, game._id, 0) }>Reset</Button></td>
               <td><Button bsStyle="danger"  onClick={ () => quitGame(team._id, score._id, game._id) }>Quit</Button></td>      
             </tr>
           ) : (
             <tr key={team._id}>
-              <td>{team.name}</td>
-              <td className="scoreCol">-</td>
+              <td className="teamName">{team.abbrv}</td>
+              <td>-</td>
               <td colSpan="2"><Button bsStyle="info" block onClick={ () => initializeTeam(team, game) }>Initialize</Button></td>
             </tr>
           )
         ) : (
           score ? (
             <tr key={team._id}>
-              <td>{team.name}</td>
-              <td className="scoreCol">{score.raw}</td>
+              <td className="teamName">{team.abbrv}</td>
+              <td>{score.raw}</td>
               <td><Button bsStyle="primary" onClick={ () => incScore(score._id, game._id, -1) }>-</Button></td>
               <td><Button bsStyle="primary" onClick={ () => incScore(score._id, game._id, 1) }>+</Button></td>
             </tr>

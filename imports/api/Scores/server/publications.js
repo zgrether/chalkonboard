@@ -30,26 +30,26 @@ Meteor.publish('scores.game', function scoresGame(gameId) {
   return Scores.find({ gameId: gameId });
 });
 
-Meteor.publish('scores.gamePlayerOrderPositive', function scoresPlayerGameOrderPositive(gameId) {
+Meteor.publish('scores.gamePlayerOrder', function scoresPlayerGameOrderPositive(gameId, order) {
   check(gameId, String);
   return Scores.find({ 
       gameId: gameId,
       playerId: {$exists: true },
     }, 
     {
-      sort: { raw: -1 }
+      sort: { raw: order }
     }
   );
 });
 
-Meteor.publish('scores.gameTeamOrderPositive', function scoresTeamGameOrderPositive(gameId) {
+Meteor.publish('scores.gameTeamOrder', function scoresTeamGameOrderPositive(gameId, order) {
   check(gameId, String);
   return Scores.find({ 
       gameId: gameId,
       teamId: {$exists: true },
     }, 
     {
-      sort: { raw: -1 }
+      sort: { raw: order }
     }
   );
 });

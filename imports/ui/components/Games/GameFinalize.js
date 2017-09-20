@@ -66,19 +66,23 @@ GameFinalize.propTypes = {
 export default createContainer(({ game, history }) => {
   const pointsSub = Meteor.subscribe('points.gameId', game._id);
   const points = PointsCollection.find({ gameId: game._id}, { sort: { order: 1 } }).fetch();
+  let order = -1;
+
+  if (game.golftype == "Stroke Play")
+    order = 1;
 
   if (game.bteam) {
-    const subscription = Meteor.subscribe('scores.gameTeamOrderPositive', game._id);
+    const subscription = Meteor.subscribe('scores.gameTeamOrder', game._id, order);
     return {
-      scores: ScoresCollection.find({ gameId: game._id, teamId: { $exists: true }}, { sort: { raw: -1 } }).fetch(),
+      scores: ScoresCollection.find({ gameId: game._id, teamId: { $exists: true }}, { sort: { raw: order } }).fetch(),
       points: points,
       game: game,
       history: history,
     };
   } else {
-    const subscription = Meteor.subscribe('scores.gamePlayerOrderPositive', game._id);
+    const subscription = Meteor.subscribe('scores.gamePlayerOrder', game._id, order);
     return {
-      scores: ScoresCollection.find({ gameId: game._id, playerId: { $exists: true }}, { sort: { raw: -1 } }).fetch(),
+      scores: ScoresCollection.find({ gameId: game._id, playerId: { $exists: true }}, { sort: { raw: order } }).fetch(),
       points: points,
       game: game,
       history: history,

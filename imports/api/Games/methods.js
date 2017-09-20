@@ -104,6 +104,7 @@ Meteor.methods({
       _id: String,
       title: String,
       type: String,
+      golftype: String,
       rules: String,
       sumpoints: Boolean,
       teeId: String,
