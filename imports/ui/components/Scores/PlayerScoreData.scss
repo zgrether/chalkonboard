@@ -4,17 +4,25 @@
   text-align: left;
 }
 
-td {
+.playerScore {
   text-align: center;
+}
+
+tr.modalNum {
+  height: 60px;
   vertical-align: middle;
 }
 
-.centerText {
-  font-size: 30px;
-
-}
-
-.styleWell {
+.modalData {
+  width: 15px;
   text-align: center;
-  height: 80px;
+  font-size: 30px;
 }
+
+.modalDataLarge {
+  width: 100px;
+  text-align: center;
+  font-size: 30px;
+}
+
+

@@ -54,7 +54,7 @@ class GameHeader extends React.Component {
                 null
               )
             )}
-            &nbsp;&nbsp;{ game.title } <small>{ event.location }</small>
+            &nbsp;&nbsp;{ game.title }
             {editing ? (
               <ButtonGroup className="pull-right">
                 <Button onClick={ () => returnToScoreboard(history, game) }>Scoreboard</Button>

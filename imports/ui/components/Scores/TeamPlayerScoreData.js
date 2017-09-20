@@ -22,7 +22,7 @@ class TeamPlayerScoreData extends React.Component {
         <Table condensed striped hover className="table-nonfluid">
           <thead>
             <tr>
-              <th className="teamName">{team.name}</th>
+              <th className="teamName">{team.abbrv}</th>
               <th className="scoreCol">Score</th>
               <th/>
               <th/>

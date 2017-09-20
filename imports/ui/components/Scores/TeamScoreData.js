@@ -5,7 +5,7 @@ import ScoresCollection from '../../../api/Scores/Scores';
 import { createContainer } from 'meteor/react-meteor-data';
 import { Meteor } from 'meteor/meteor';
 import { Bert } from 'meteor/themeteorchef:bert';
-import { Button, Alert, Modal, Row, Col, Well } from 'react-bootstrap';
+import { Button, Alert, Modal, Row, Col, Well, Table } from 'react-bootstrap';
 
 import './TeamScoreData.scss';
 
@@ -57,7 +57,20 @@ const incScore = (scoreId, gameId, inc) => {
   });
 }
 
+const calculateNewScore = (prevScore, minus, addScore) => {
+  let prevScoreNum = addScoreNum = 0;
 
+  if (prevScore) {
+    prevScoreNum = parseInt(prevScore);
+  }
+  if (addScore) {
+    addScoreNum = parseInt(addScore);
+  }
+  if (minus) {
+    addScoreNum = -addScoreNum;
+  }
+  return prevScoreNum + addScoreNum;
+}
 
 class TeamScoreData extends React.Component {
   constructor(props) {
@@ -97,14 +110,14 @@ class TeamScoreData extends React.Component {
           score ? (
             <tr key={team._id}>
               <td className="teamName">{team.abbrv}</td>
-              <td>{score.raw}</td>
+              <td className="teamScore">{score.raw}</td>
               <td><Button bsStyle="primary" onClick={ () => editScore(score._id, game._id, 0) }>Reset</Button></td>
               <td><Button bsStyle="danger"  onClick={ () => quitGame(team._id, score._id, game._id) }>Quit</Button></td>      
             </tr>
           ) : (
             <tr key={team._id}>
               <td className="teamName">{team.abbrv}</td>
-              <td>-</td>
+              <td className="teamScore">-</td>
               <td colSpan="2"><Button bsStyle="info" block onClick={ () => initializeTeam(team, game) }>Initialize</Button></td>
             </tr>
           )
@@ -112,7 +125,7 @@ class TeamScoreData extends React.Component {
           score ? (
             <tr key={team._id}>
               <td className="teamName">{team.abbrv}</td>
-              <td>{score.raw}</td>
+              <td className="teamScore">{score.raw}</td>
               <td><Button bsStyle="primary" onClick={ () => incScore(score._id, game._id, -1) }>-</Button></td>
               <td><Button bsStyle="primary" onClick={ () => incScore(score._id, game._id, 1) }>+</Button></td>
               <td><Button bsStyle="primary" onClick={ () => this.setState({ showModal: true, scorevalue: "", minus: false }) }>#</Button></td>
@@ -124,9 +137,28 @@ class TeamScoreData extends React.Component {
                 
                 <Modal.Body>
                   <Row>
-                    <Well className="styleWell"><span className="centerText">{this.state.minus && "-" }{this.state.scorevalue}</span></Well>
+                    <Table>
+                      <tbody>
+                        <tr className="modalNum">
+                          <td className="modalDataLarge">{score.raw}</td>
+                          <td className="modalData">+</td>
+                          <td className="modalDataLarge">{this.state.minus && "-" }{this.state.scorevalue}</td>
+                          <td className="modalData">=</td>
+                          <td className="modalDataLarge">{calculateNewScore(score.raw, this.state.minus, this.state.scorevalue)}</td>
+                        </tr>
+                      </tbody>
+                      <tfoot>
+                        <tr>
+                          <td>Current</td>
+                          <td />
+                          <td />
+                          <td />
+                          <td>New Score</td>
+                        </tr>
+                      </tfoot>
+                    </Table>
                   </Row>
-              
+                  
                   <Row>
                     <Col xs={4} md={4}>
                       <Button bsStyle="primary" block onClick={ () => this.setState({ scorevalue: (this.state.scorevalue + 1) }) }>1</Button>
@@ -177,7 +209,7 @@ class TeamScoreData extends React.Component {
                       <Button bsStyle="primary" block onClick={ () => this.setState({ scorevalue: (this.state.scorevalue + 0) }) }>0</Button>
                     </Col>
                     <Col xs={4} md={4}>
-                      <Button bsStyle="primary" block onClick={ () => this.setState({ minus: !this.state.minus }) }>-</Button>
+                      <Button bsStyle="primary" block onClick={ () => this.setState({ minus: !this.state.minus }) }>+/-</Button>
                     </Col>
                   </Row>
 
